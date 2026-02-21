@@ -3,16 +3,23 @@ using API_final.Entities;
 using API_final.Repository.Interfaces;
 using API_final.Services.Interfaces;
 using BCrypt.Net;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+
 
 namespace API_final.Services.Implementatios
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IConfiguration _config;    
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IConfiguration config)
         {
             _userRepository = userRepository;
+            _config = config;
         }
 
         public async Task<string> RegisterAsync(RegisterDto dto)
@@ -44,23 +51,31 @@ namespace API_final.Services.Implementatios
 
         public async Task<string> LoginAsync(LoginDto dto)
         {
-            // 1. Buscamos al usuario
             var user = await _userRepository.GetByEmailAsync(dto.Email);
-            if (user == null)
+            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             {
                 throw new UnauthorizedAccessException("Credenciales incorrectas.");
             }
 
-            // 2. VERIFICACIÓN DEL HASH (REQUERIMIENTO EXTRA)
-            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
-
-            if (!isPasswordValid)
+            var claims = new[]
             {
-                throw new UnauthorizedAccessException("Credenciales incorrectas.");
-            }
+               new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+               new Claim(ClaimTypes.Email, user.Email),
+               new Claim(ClaimTypes.Name, user.RestaurantName)
+           };
 
-            // ACÁ LUEGO GENERAREMOS EL TOKEN JWT. Por ahora devolvemos un string.
-            return "Login exitoso. (Pronto devolveremos un JWT acá)";
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(2),
+                signingCredentials: creds
+                );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }

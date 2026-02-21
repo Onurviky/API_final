@@ -2,7 +2,7 @@
 using API_final.Services.Interfaces;
 
 
-namespace API_final.Services.Implementations;
+namespace API_final.Services.Implementatios;
 
 public class ProductService : IProductService
 {
