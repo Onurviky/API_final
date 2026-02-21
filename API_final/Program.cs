@@ -8,7 +8,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using API_final.Repository.Implementatios;
 using API_final.Services.Implementatios;
-using Menu_Restaurante_API.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,7 +1,7 @@
 ﻿using API_final.DTOs;
 using API_final.Entities;
 using API_final.Repository.Interfaces;
-using Menu_Restaurante_API.Services.Interfaces;
+using API_final.Services.Interfaces;
 
 namespace API_final.Services.Implementatios
 {
