@@ -1,6 +1,6 @@
 ﻿using API_final.DTOs;
 
-namespace Menu_Restaurante_API.Services.Interfaces;
+namespace API_final.Services.Interfaces;
 
 public interface ICategoryService
 {
