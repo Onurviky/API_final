@@ -12,5 +12,5 @@ public interface IUserRepository
     Task DeleteAsync(User user);
 
     // El otro requerimiento extra: trackear visitas
-    Task IncrementVisitsAsync(int userId);
+    // Task IncrementVisitsAsync(int userId);
 }
