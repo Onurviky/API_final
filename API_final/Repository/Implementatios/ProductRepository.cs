@@ -22,9 +22,10 @@ namespace API_final.Repository.Implementatios
                 .ToListAsync();
         }
 
-        public async Task<List<Product>> GetProductsByCategoryAsync(int categoryId)
+        public async Task<List<Product>> GetProductsByCategoryAsync(int restaurantId, int categoryId)
         {
             return await _context.Products
+                .Include(p => p.Category)
                 .Where(p => p.CategoryId == categoryId)
                 .ToListAsync();
         }
@@ -39,6 +40,7 @@ namespace API_final.Repository.Implementatios
         public async Task<List<Product>> GetFavoritesAsync(int userId)
         {
             return await _context.Products
+                .Include(p => p.Category)
                 .Where(p => p.UserId == userId && p.IsFavorite)
                 .ToListAsync();
         }
@@ -46,6 +48,7 @@ namespace API_final.Repository.Implementatios
         public async Task<List<Product>> GetDiscountedOrHappyHourAsync(int userId)
         {
             return await _context.Products
+                .Include(p => p.Category)
                 .Where(p => p.UserId == userId && (p.DiscountPercent > 0 || p.HappyHourEnabled))
                 .ToListAsync();
         }

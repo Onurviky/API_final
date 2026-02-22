@@ -6,7 +6,7 @@ namespace API_final.Repository.Interfaces
     {
         // Métodos para el Invitado
         Task<List<Product>> GetProductsByRestaurantAsync(int userId);
-        Task<List<Product>> GetProductsByCategoryAsync(int categoryId);
+        Task<List<Product>> GetProductsByCategoryAsync(int restaurantId,int categoryId);
         Task<Product?> GetByIdAsync(int id);
         Task<List<Product>> GetFavoritesAsync(int userId);
         Task<List<Product>> GetDiscountedOrHappyHourAsync(int userId);

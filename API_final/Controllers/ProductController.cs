@@ -21,7 +21,7 @@ namespace API_final.Controllers
 
         // Obtener menú completo de un restaurante
         [HttpGet("restaurant/{restaurantId:int}")]
-        [AllowAnonymous]
+        [AllowAnonymous] 
         public async Task<IActionResult> GetByRestaurant(int restaurantId)
         {
             // Nota: Asumimos que tu ProductService tiene este método implementado
@@ -30,12 +30,20 @@ namespace API_final.Controllers
         }
 
         // Obtener filtrado por categoría
-        [HttpGet("category/{categoryId:int}")]
+        [HttpGet("restaurant/{restaurantId:int}/category/{categoryId:int}")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetByCategory(int categoryId)
+        public async Task<IActionResult> GetByCategory(int restaurantId, int categoryId)
         {
-            var products = await _productService.GetProductsByCategoryAsync(categoryId);
-            return Ok(products);
+            try
+            {
+                var products = await _productService.GetProductsByCategoryAsync(restaurantId, categoryId);
+                return Ok(products);
+            }
+            catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
 
         // Obtener destacados/favoritos
@@ -78,7 +86,7 @@ namespace API_final.Controllers
             return NoContent();
         }
 
-        // Modificar Happy Hour (Endpoint propio como pide el TP)
+        // Modificar Happy Hour 
         [HttpPatch("{id:int}/happy-hour")]
         [Authorize]
         public async Task<IActionResult> ToggleHappyHour(int id, [FromBody] bool isEnabled)
@@ -88,7 +96,52 @@ namespace API_final.Controllers
             return NoContent();
         }
 
-        // 🔥 REQUERIMIENTO EXTRA: Aumento Masivo 🔥
+        [HttpPut("{id:int}")]
+        [Authorize]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateProductDto dto)
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            try
+            {
+                var updated = await _productService.UpdateProductAsync(id, userId, dto);
+                return Ok(updated);
+            }
+            catch (UnauthorizedAccessException) { return Forbid(); } // 403 Forbidden
+            catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); } // 404
+        }
+
+        [HttpDelete("{id:int}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(int id)
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            try
+            {
+                await _productService.DeleteProductAsync(id, userId);
+                return NoContent(); // Estándar REST para borrado exitoso
+            }
+            catch (UnauthorizedAccessException) { return Forbid(); }
+            catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+        }
+
+        [HttpPatch("{id:int}/favorite")]
+        [Authorize]
+        public async Task<IActionResult> ToggleFavorite(int id)
+        {
+            int userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
+            try
+            {
+                await _productService.ToggleFavouriteAsync(id, userId);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException) { return Forbid(); }
+            catch (KeyNotFoundException ex) { return NotFound(new { error = ex.Message }); }
+        }
+
+        // REQUERIMIENTO EXTRA 
         [HttpPost("increase-prices")]
         [Authorize]
         public async Task<IActionResult> IncreasePrices([FromBody] decimal percentage)
