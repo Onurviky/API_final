@@ -53,13 +53,4 @@ public class UserRepository : IUserRepository
         await _context.SaveChangesAsync();
     }
 
-    //public async Task IncrementVisitsAsync(int userId)
-    //{
-    //    // Otra vez usamos ExecuteUpdateAsync para no traer el usuario a memoria solo para sumar 1.
-    //    // Hacemos un UPDATE directo en SQL.
-    //    await _context.Users
-    //        .Where(u => u.Id == userId)
-    //        .ExecuteUpdateAsync(s => s
-    //            .SetProperty(u => u.Visits, u => u.Visits + 1));
-    //}
 }

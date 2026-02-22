@@ -1,7 +1,10 @@
-﻿using API_final.DTOs;
+﻿
+using API_final.DTOs;
 using API_final.Repository.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using API_final.Services.Interfaces;
+using API_final.Services.Implementatios;
 
 namespace API_final.Controllers
 {
@@ -9,18 +12,18 @@ namespace API_final.Controllers
     [Route("api/[controller]")]
     public class RestaurantController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IRestaurantService _restaurantService;
 
-        public RestaurantController(IUserRepository userRepository)
+        public RestaurantController(IRestaurantService restaurantService)
         {
-            _userRepository = userRepository;
+            _restaurantService = restaurantService;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
-            var users = await _userRepository.GetAllRestaurantsAsync();
+            var users = await _restaurantService.GetAllRestaurantsAsync();
 
             var response = users.Select(u => new RestaurantDto
             {
